@@ -1,28 +1,50 @@
-import { useState } from 'react'
+import { useEffect, useState } from "react";
+import RoleSwitcher from "./components/RoleSwitcher";
+import EntryForm from "./components/EntryForm";
+import ReviewPanel from "./components/ReviewPanel";
+import ApprovalPanel from "./components/ApprovalPanel";
+import EntriesTable from "./components/EntriesTable";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [role, setRole] = useState("creator");
+  const [actingRole, setActingRole] = useState("creator");
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const triggerRefresh = () => setRefreshKey((k) => k + 1);
+
+  useEffect(() => {
+    if (role !== "blackadam") setActingRole(role);
+  }, [role]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
+      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold tracking-tight">Accounting CRM</h1>
+          <RoleSwitcher
+            role={role}
+            setRole={setRole}
+            actingRole={actingRole}
+            setActingRole={setActingRole}
+          />
         </div>
-      </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <EntryForm role={role} actingRole={actingRole} onRefresh={triggerRefresh} />
+          <ReviewPanel role={role} actingRole={actingRole} onRefresh={triggerRefresh} />
+          <ApprovalPanel role={role} actingRole={actingRole} onRefresh={triggerRefresh} />
+        </div>
+
+        <EntriesTable key={refreshKey} />
+
+        <div className="text-xs text-gray-500 text-center pt-6">
+          Workflow: Creator submits → Reviewer marks reviewed or requests re-entry → Approver approves or requests re-review. Approved entries are frozen.
+        </div>
+      </main>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
